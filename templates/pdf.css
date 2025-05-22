@@ -1,0 +1,122 @@
+@page {
+    size: A4;
+    margin: 3mm;
+}
+
+body {
+    width: 794px;
+    /* A4 width for 96 DPI */
+    margin: 0 auto;
+    padding: 3mm;
+    font-size: 12px;
+    font-size: 1rem;
+}
+
+
+header img {
+    max-width: 100%;
+    display: block;
+}
+
+/* Main Container Layout */
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: right;
+    /* border: 2px solid red; */
+    page-break-inside: avoid;
+}
+
+.address-box {
+    width: 300px;
+    /* border: 2px solid red; */
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.address-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #000;
+}
+
+.address-box ul li {
+    padding: 3px;
+}
+
+/* Student Details Layout */
+.stud-details {
+    /* border: 2px solid rgb(0, 255, 145); */
+    display: flex;
+    justify-content: space-between;
+}
+
+.details-container{
+    display: flex;
+    flex-direction: column;
+    /* border: 2px solid violet; */
+}
+.details {
+    display: flex;
+    align-items: flex-start;
+    float: right;
+    margin-bottom: 10px;
+    height: fit-content;
+}
+
+.details span {
+    font-weight: bold;
+    text-align: right;
+    width: 155px;
+    padding-right: 10px;
+    display: inline-block;
+}
+
+.details p {
+    text-align: left;
+    margin: 0;
+    display: inline-block;
+    word-wrap: break-word;
+    /* or overflow-wrap: break-word; */
+    max-width: 160px;
+    /* Limit the width of the paragraph */
+}
+
+/* Student Image */
+.student-img img {
+    width: 160px;
+    height: 198px;
+    object-fit: cover;
+    border: 1px solid #000;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th,
+td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}
+#course_name{
+    text-align: left;
+}
+
+.semester-header {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.note{
+    border:1px solid black;
+    padding: 1rem;
+    /* text-align: center; */
+}
+.grade-legend{
+    display: inline;
+}

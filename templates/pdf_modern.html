@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            background-color: #f9f9f9;
+            font-size: 12px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #4568dc 30%, #b06ab3 90%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header-image {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .content-wrapper {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .student-info-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+        .student-details {
+            flex: 2;
+            background-color: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .student-details p {
+            margin: 5px 0;
+        }
+        .address {
+            flex: 2;
+            background-color: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            margin-left: 10px;
+        }
+        .address ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .address li {
+            margin-bottom: 2px;
+        }
+        .photo-container {
+            flex: 1;
+            width: 35mm;
+            height: 45mm;
+            border: 1px solid #ddd;
+            overflow: hidden;
+            margin-left: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .semester-table, .semester-summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            font-size: 11px;
+        }
+        .semester-table th, .semester-summary-table th {
+            background-color: #f2f2f2;
+            padding: 8px;
+            text-align: left;
+        }
+        .semester-table td, .semester-summary-table td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .semester-table tr:last-child td {
+            border-bottom: none;
+        }
+        .semester-header {
+            background: linear-gradient(45deg, #4568dc 30%, #b06ab3 90%);
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .chart-container {
+            margin: 20px 0;
+            text-align: center;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            height: 300px;
+        }
+        @media print {
+            body {
+                padding: 0;
+                margin: 10mm;
+                background-color: white;
+            }
+            .content-wrapper {
+                box-shadow: none;
+                padding: 0;
+            }
+            .header {
+                box-shadow: none;
+            }
+            .semester-table, .semester-summary-table {
+                box-shadow: none;
+            }
+            .chart-container {
+                box-shadow: none;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        {{HEADER_IMAGE}}
+    </div>
+
+    <div class="content-wrapper">
+        <div class="student-info-container">
+            <div class="student-details">
+                <p><strong>Registration No:</strong> {{REG_NO}}</p>
+                <p><strong>Name:</strong> {{STUDENT_NAME}}</p>
+                <p><strong>Branch:</strong> {{BRANCH}}</p>
+                <p><strong>Current Semester:</strong> {{SEMESTER}}</p>
+            </div>
+            <div class="address">
+                <p><strong>Address:</strong></p>
+                <ul>
+                    {{ADDRESS}}
+                </ul>
+            </div>
+            <div class="photo-container">
+                {{STUDENT_PHOTO}}
+            </div>
+        </div>
+
+        <div class="semester-records">
+            {{SEMESTER_RECORDS}}
+        </div>
+
+        <div class="semester-summary">
+            {{SEMESTER_SUMMARY}}
+        </div>
+
+        <div class="chart-container">
+            {{Dashboards}}
+        </div>
+
+        <div class="footer">
+            <p>This is a computer-generated report and does not require a signature.</p>
+            <p>Generated by Automated Reporting System</p>
+        </div>
+    </div>
+</body>
+</html>

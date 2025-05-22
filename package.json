@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@mui/x-date-pickers": "^8.3.1",
+    "date-fns": "^4.1.0",
+    "framer-motion": "^12.10.5"
+  }
+}

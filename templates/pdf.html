@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Report Template</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 3mm;
+        }
+
+        body {
+            width: 794px;
+            margin: 0 auto;
+            padding: 3mm;
+            font-size: 12px;
+            font-size: 1rem;
+        }
+
+        header img {
+            max-width: 100%;
+            display: block;
+        }
+
+        /* Main Container Layout */
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: right;
+            page-break-inside: avoid;
+        }
+
+        .address-box {
+            width: 300px;
+            white-space: nowrap;
+            box-sizing: border-box;
+        }
+
+        .address-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #000;
+        }
+
+        .address-box ul li {
+            padding: 3px;
+        }
+
+        /* Student Details Layout */
+        .stud-details {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .details-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .details {
+            display: flex;
+            align-items: flex-start;
+            float: right;
+            margin-bottom: 10px;
+            height: fit-content;
+        }
+
+        .details span {
+            font-weight: bold;
+            text-align: right;
+            width: 155px;
+            padding-right: 10px;
+            display: inline-block;
+        }
+
+        .details p {
+            text-align: left;
+            margin: 0;
+            display: inline-block;
+            word-wrap: break-word;
+            max-width: 160px;
+        }
+
+        /* Student Image */
+        .student-img img {
+            width: 160px;
+            height: 198px;
+            object-fit: cover;
+            border: 1px solid #000;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+
+        #course_name {
+            text-align: left;
+        }
+
+        .semester-header {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .note {
+            border: 1px solid black;
+            padding: 1rem;
+        }
+
+        .grade-legend {
+            display: inline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content">
+        <header>
+            <h1 style="text-align: center; margin: 10px 0;">STUDENT PERFORMANCE REPORT</h1>
+            <hr>
+        </header>
+
+        <div class="container">
+            <!-- Address Box -->
+            <div class="address-box">
+                <ul>
+                    {{ADDRESS}}
+                </ul>
+            </div>
+
+            <!-- Student Details -->
+            <div class="stud-details">
+                <div class="details-container">
+                    <div class="details">
+                        <span>Reg.No :</span>
+                        <p class="reg_no">{{REG_NO}}</p>
+                    </div>
+
+                    <div class="details">
+                        <span>Student Name :</span>
+                        <p class="std_name">{{STUDENT_NAME}}</p>
+                    </div>
+
+                    <div class="details">
+                        <span>Branch :</span>
+                        <p>{{BRANCH}}</p>
+                    </div>
+
+                    <div class="details">
+                        <span>Semester :</span>
+                        <p>{{SEMESTER}}</p>
+                    </div>
+                </div>
+                <!-- Student Image -->
+                <div class="student-img">
+                    <div style="width: 160px; height: 198px; border: 1px solid #000; display: flex; justify-content: center; align-items: center;">
+                        <p>Student Photo</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Placeholder for dynamically generated semester records -->
+        <div class="semester-records">
+            {{SEMESTER_RECORDS}}
+        </div>
+        
+        <div class="note">
+            <strong>Note:</strong> Letter Grade Indicates
+            <ul class="grade-legend">
+                <li>A+ – Outstanding</li>
+                <li>A – Excellent</li>
+                <li>B – Very Good</li>
+                <li>C – Good</li>
+                <li>D – Fair</li>
+                <li>S – Satisfactory</li>
+                <li>E – Satisfactory</li>
+                <li>F – Fail</li>
+                <li>N – Not Satisfactory</li>
+            </ul>
+        </div>
+          
+
+        <div class="semester-summary">
+            {{SEMESTER_SUMMARY}}
+        </div>
+
+        {{Dashboards}}
+    </div>
+</body>
+
+</html>
