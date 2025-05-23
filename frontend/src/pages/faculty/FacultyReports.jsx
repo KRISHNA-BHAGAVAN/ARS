@@ -39,21 +39,43 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import HistoryIcon from '@mui/icons-material/History';
 import AddIcon from '@mui/icons-material/Add';
 
-import { api } from '../../services/api_enhanced';
+import { api } from '../../services/api_enhanced'; // Assuming this is your facultyApi or similar
+import facultyApi from '../../services/faculty-api'; // Explicitly import facultyApi
 
 const FacultyReports = () => {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [fetchError, setFetchError] = useState(null); // Renamed error to avoid conflict with API error
+  const [reportError, setReportError] = useState(null); // Specific error for report generation
   const [tabValue, setTabValue] = useState(0);
   const [students, setStudents] = useState([]);
   const [selectedStudents, setSelectedStudents] = useState([]);
-  const [reportType, setReportType] = useState('individual');
-  const [reportFormat, setReportFormat] = useState('pdf');
-  const [templateStyle, setTemplateStyle] = useState('classic');
-  const [includeCharts, setIncludeCharts] = useState(true);
-  const [selectedColumns, setSelectedColumns] = useState([
-    'registered_no', 'name', 'branch', 'curr_semester', 'sgpa'
-  ]);
+  const [reportType, setReportType] = useState('individual'); // This seems to be for the *type* of data (e.g. performance, attendance) not the file format.
+  const [selectedFormat, setSelectedFormat] = useState('pdf'); // 'pdf' or 'excel' - Replaces original reportFormat
+  const [pdfOptionType, setPdfOptionType] = useState('individual'); // 'individual' or 'combined'
+  const [templateStyle, setTemplateStyle] = useState('classic'); // Kept for PDF styling
+  const [includeCharts, setIncludeCharts] = useState(true); // Kept for PDF styling
+
+  const allExcelColumnsOptions = [
+    { key: 'name', label: 'Name' },
+    { key: 'reg_no', label: 'Registration Number' },
+    { key: 'branch', label: 'Branch' },
+    { key: 'current_semester', label: 'Current Semester' },
+    { key: 'cgpa', label: 'Overall CGPA' },
+    { key: 'semester1_sgpa', label: 'Semester 1 SGPA' },
+    { key: 'semester1_credits_obtained', label: 'Semester 1 Credits Obtained' },
+    { key: 'semester2_sgpa', label: 'Semester 2 SGPA' },
+    { key: 'semester2_credits_obtained', label: 'Semester 2 Credits Obtained' },
+    { key: 'semester3_sgpa', label: 'Semester 3 SGPA' },
+    { key: 'semester3_credits_obtained', label: 'Semester 3 Credits Obtained' },
+    { key: 'semester4_sgpa', label: 'Semester 4 SGPA' },
+    { key: 'semester4_credits_obtained', label: 'Semester 4 Credits Obtained' },
+    { key: 'semester5_sgpa', label: 'Semester 5 SGPA' },
+    { key: 'semester5_credits_obtained', label: 'Semester 5 Credits Obtained' },
+    // Add more semesters as needed
+  ];
+
+  const [selectedExcelColumns, setSelectedExcelColumns] = useState(['reg_no', 'name', 'cgpa']); // Array of column keys
+
   const [recentReports, setRecentReports] = useState([]);
   const [scheduledReports, setScheduledReports] = useState([]);
   const [generatingReport, setGeneratingReport] = useState(false);
@@ -182,7 +204,17 @@ const FacultyReports = () => {
   };
 
   const handleReportFormatChange = (event) => {
-    setReportFormat(event.target.value);
+    setSelectedFormat(event.target.value);
+    // Reset options when format changes
+    if (event.target.value === 'pdf') {
+      // setSelectedExcelColumns(['reg_no', 'name', 'cgpa']); // Optionally reset excel columns
+    } else {
+      // setPdfOptionType('individual'); // Optionally reset pdf options
+    }
+  };
+
+  const handlePdfOptionTypeChange = (event) => {
+    setPdfOptionType(event.target.value);
   };
 
   const handleTemplateStyleChange = (event) => {
@@ -195,40 +227,109 @@ const FacultyReports = () => {
 
   const handleColumnSelection = (event) => {
     const value = event.target.value;
-    setSelectedColumns(value);
+    setSelectedExcelColumns(typeof value === 'string' ? value.split(',') : value);
   };
 
-  const handleGenerateReport = () => {
+  const handleGenerateReport = async () => {
     setGeneratingReport(true);
-    
-    // Simulate report generation
-    setTimeout(() => {
-      setGeneratingReport(false);
-      
-      // In a real implementation, this would redirect to the report URL
-      if (reportFormat === 'pdf') {
-        const url = api.downloadIndividualReport(
-          selectedStudents[0], 
-          includeCharts, 
-          templateStyle
-        );
-        window.open(url, '_blank');
-      } else {
-        const url = api.downloadBulkReport({
-          selected: selectedStudents,
-          reportType: 'excel',
-          selected_columns: selectedColumns
-        });
-        window.open(url, '_blank');
+    setReportError(null); // Clear previous report errors
+
+    // Construct reportData (using 'reportType' as the 'type' for the report category and 'Report Name' field for 'name')
+    // For 'name', we'll use the 'reportType' state as a placeholder, or a more specific name if available.
+    // The 'reportType' state in the UI seems to map to 'Individual Student Report', 'Batch Report', etc.
+    // This can be used as the report's 'type' for backend categorization/logging.
+    // The actual report name could be a combination or a fixed string for now.
+    let dynamicReportName = "Student Report"; // Default
+    if(reportType) {
+        dynamicReportName = reportType.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') + ` (${selectedFormat.toUpperCase()})`;
+    }
+
+
+    const reportData = {
+      name: dynamicReportName, // Using the existing 'reportType' state for the report's conceptual name/title
+      type: reportType, // This is the category of report (e.g., 'individual', 'batch')
+      format: selectedFormat,
+      student_ids: selectedStudents, // Assuming selectedStudents contains IDs/regNos
+      parameters: { // General parameters, can include things not specific to PDF/Excel
+        templateStyle: selectedFormat === 'pdf' ? templateStyle : undefined,
+        includeCharts: selectedFormat === 'pdf' ? includeCharts : undefined,
       }
-    }, 2000);
+    };
+
+    if (selectedFormat === 'pdf') {
+      reportData.pdf_options = { type: pdfOptionType };
+    } else if (selectedFormat === 'excel') {
+      reportData.excel_options = { columns: selectedExcelColumns };
+    }
+
+    try {
+      const response = await facultyApi.generateFacultyReport(reportData);
+
+      if (response.data && response.status === 200) {
+        const blob = new Blob([response.data], { type: response.headers['content-type'] });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        let filename = `${dynamicReportName.replace(/\s+/g, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}`;
+        const contentDisposition = response.headers['content-disposition'];
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename="?(.+)"?/i);
+          if (filenameMatch && filenameMatch.length > 1) {
+            filename = filenameMatch[1];
+          }
+        }
+        
+        // Fallback extension if not in extracted filename
+        if (selectedFormat === 'pdf' && !filename.endsWith('.pdf') && !filename.endsWith('.zip')) {
+            filename += (pdfOptionType === 'individual' && selectedStudents.length > 1) ? '.zip' : '.pdf';
+        } else if (selectedFormat === 'excel' && !filename.endsWith('.xlsx')) {
+            filename += '.xlsx';
+        }
+
+
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        
+        // Optionally, show a success message
+        // setSuccessAlert('Report generated and download started!'); // Requires state for success alert
+      } else {
+        // Handle non-200 success statuses or empty data if necessary
+        setReportError('Failed to generate report: Invalid response from server.');
+      }
+    } catch (error) {
+      console.error('Error generating report:', error);
+      if (error.response && error.response.data && error.response.data.error) {
+        setReportError(`Error: ${error.response.data.error}. Details: ${error.response.data.details || 'No additional details.'}`);
+      } else if (error.response && error.response.data && error.response.data.message) { // For text/plain errors from blob parsing
+         setReportError(`Error: ${error.response.data.message}`);
+      }
+      else if (error.message) {
+        setReportError(error.message);
+      } else {
+        setReportError('An unknown error occurred while generating the report.');
+      }
+    } finally {
+      setGeneratingReport(false);
+    }
   };
 
   const handlePreviewReport = () => {
-    if (reportFormat === 'pdf' && selectedStudents.length === 1) {
-      const url = api.previewIndividualReport(
-        selectedStudents[0], 
-        includeCharts, 
+    // Preview logic might need adjustment based on new options
+    if (selectedFormat === 'pdf' && selectedStudents.length === 1) {
+      // const url = api.previewIndividualReport( // This api call is mock and might need update
+      //   selectedStudents[0], 
+      //   includeCharts, 
+      // );
+      alert(`Simulating PDF preview for ${selectedStudents[0]}`);
+      // window.open(url, '_blank');
+    }
+  };
+
+  const handleDeleteReport = (id) => {
         templateStyle
       );
       window.open(url, '_blank');
@@ -270,10 +371,10 @@ const FacultyReports = () => {
     );
   }
 
-  if (error) {
+  if (fetchError) { // Changed from error to fetchError
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="error">{error}</Alert>
+        <Alert severity="error">{fetchError}</Alert>
       </Box>
     );
   }
@@ -307,6 +408,13 @@ const FacultyReports = () => {
         </Tabs>
         
         <Box sx={{ p: 3 }}>
+          {/* Report Error Alert */}
+          {reportError && (
+            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setReportError(null)}>
+              {reportError}
+            </Alert>
+          )}
+
           {/* Generate Report Tab */}
           {tabValue === 0 && (
             <motion.div variants={itemVariants}>
@@ -323,7 +431,7 @@ const FacultyReports = () => {
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
                           <FormControl fullWidth margin="normal">
-                            <InputLabel>Report Type</InputLabel>
+                            <InputLabel>Report Category/Title</InputLabel> {/* Changed Label */}
                             <Select
                               value={reportType}
                               onChange={handleReportTypeChange}
@@ -342,7 +450,7 @@ const FacultyReports = () => {
                           <FormControl fullWidth margin="normal">
                             <InputLabel>Report Format</InputLabel>
                             <Select
-                              value={reportFormat}
+                              value={selectedFormat} // Updated state variable
                               onChange={handleReportFormatChange}
                               label="Report Format"
                             >
@@ -364,7 +472,7 @@ const FacultyReports = () => {
                         
                         <Grid item xs={12}>
                           <FormControl fullWidth margin="normal">
-                            <InputLabel>Select Students</InputLabel>
+                            <InputLabel>Select Students</InputLabel> {/* Assuming this exists and works */}
                             <Select
                               multiple
                               value={selectedStudents}
@@ -391,8 +499,26 @@ const FacultyReports = () => {
                           </FormControl>
                         </Grid>
                         
-                        {reportFormat === 'pdf' && (
+                        {/* PDF Options: Conditional Display */}
+                        {selectedFormat === 'pdf' && (
                           <>
+                            {selectedStudents.length > 1 && (
+                              <Grid item xs={12}>
+                                <FormControl component="fieldset" margin="normal">
+                                  <FormLabel component="legend">PDF Output Type</FormLabel>
+                                  <RadioGroup
+                                    row
+                                    name="pdfOptionType"
+                                    value={pdfOptionType}
+                                    onChange={handlePdfOptionTypeChange}
+                                  >
+                                    <FormControlLabel value="individual" control={<Radio />} label="Individual PDFs (ZIP)" />
+                                    <FormControlLabel value="combined" control={<Radio />} label="Combined PDF" />
+                                  </RadioGroup>
+                                </FormControl>
+                              </Grid>
+                            )}
+                            {/* Existing PDF styling options can remain here */}
                             <Grid item xs={12}>
                               <FormControl fullWidth margin="normal">
                                 <InputLabel>Template Style</InputLabel>
@@ -407,7 +533,6 @@ const FacultyReports = () => {
                                 </Select>
                               </FormControl>
                             </Grid>
-                            
                             <Grid item xs={12}>
                               <FormControlLabel
                                 control={
@@ -423,31 +548,31 @@ const FacultyReports = () => {
                           </>
                         )}
                         
-                        {reportFormat === 'excel' && (
+                        {/* Excel Column Selection: Conditional Display */}
+                        {selectedFormat === 'excel' && (
                           <Grid item xs={12}>
                             <FormControl fullWidth margin="normal">
-                              <InputLabel>Select Columns</InputLabel>
+                              <InputLabel>Select Excel Columns</InputLabel>
                               <Select
                                 multiple
-                                value={selectedColumns}
+                                value={selectedExcelColumns} // Updated state variable
                                 onChange={handleColumnSelection}
-                                label="Select Columns"
+                                label="Select Excel Columns"
                                 renderValue={(selected) => (
                                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                    {selected.map((value) => (
-                                      <Chip key={value} label={value} size="small" />
-                                    ))}
+                                    {selected.map((value) => {
+                                      const column = allExcelColumnsOptions.find(c => c.key === value);
+                                      return <Chip key={value} label={column ? column.label : value} size="small" />;
+                                    })}
                                   </Box>
                                 )}
                               >
-                                <MenuItem value="registered_no">Registration Number</MenuItem>
-                                <MenuItem value="name">Name</MenuItem>
-                                <MenuItem value="branch">Branch</MenuItem>
-                                <MenuItem value="curr_semester">Current Semester</MenuItem>
-                                <MenuItem value="sgpa">SGPA</MenuItem>
-                                <MenuItem value="cgpa">CGPA</MenuItem>
-                                <MenuItem value="attendance">Attendance</MenuItem>
-                                <MenuItem value="backlog_count">Backlog Count</MenuItem>
+                                {allExcelColumnsOptions.map((column) => (
+                                  <MenuItem key={column.key} value={column.key}>
+                                    <Checkbox checked={selectedExcelColumns.indexOf(column.key) > -1} />
+                                    <ListItemText primary={column.label} />
+                                  </MenuItem>
+                                ))}
                               </Select>
                             </FormControl>
                           </Grid>
@@ -480,15 +605,20 @@ const FacultyReports = () => {
                           <Typography variant="body1" color="text.secondary" align="center">
                             Select at least one student to generate a report
                           </Typography>
-                        ) : reportFormat === 'pdf' ? (
+                        ) : selectedFormat === 'pdf' ? ( // Updated conditional
                           <Box sx={{ textAlign: 'center' }}>
                             <PictureAsPdfIcon sx={{ fontSize: 80, color: 'error.main', mb: 2 }} />
                             <Typography variant="h6" gutterBottom>
-                              {reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report
+                              PDF Report Preview
                             </Typography>
                             <Typography variant="body2" color="text.secondary" gutterBottom>
                               {selectedStudents.length} student(s) selected
                             </Typography>
+                            {selectedStudents.length > 1 && (
+                               <Typography variant="body2" color="text.secondary">
+                                PDF Type: {pdfOptionType === 'individual' ? 'Individual (ZIP)' : 'Combined PDF'}
+                              </Typography>
+                            )}
                             <Typography variant="body2" color="text.secondary">
                               Template: {templateStyle.charAt(0).toUpperCase() + templateStyle.slice(1)}
                             </Typography>
@@ -496,40 +626,42 @@ const FacultyReports = () => {
                               Charts: {includeCharts ? 'Included' : 'Not included'}
                             </Typography>
                           </Box>
-                        ) : (
+                        ) : ( // Excel preview
                           <Box sx={{ textAlign: 'center' }}>
                             <TableChartIcon sx={{ fontSize: 80, color: 'success.main', mb: 2 }} />
                             <Typography variant="h6" gutterBottom>
-                              Excel Export
+                              Excel Report Preview
                             </Typography>
                             <Typography variant="body2" color="text.secondary" gutterBottom>
                               {selectedStudents.length} student(s) selected
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              {selectedColumns.length} columns selected
+                              {selectedExcelColumns.length} columns selected: {selectedExcelColumns.map(key => allExcelColumnsOptions.find(c => c.key === key)?.label || key).join(', ')}
                             </Typography>
                           </Box>
                         )}
                       </Box>
                     </CardContent>
                     
-                    <Box sx={{ p: 2, pt: 0, display: 'flex', justifyContent: 'space-between' }}>
-                      {reportFormat === 'pdf' && selectedStudents.length === 1 && (
+                    <Box sx={{ p: 2, pt: 0, display: 'flex', justifyContent: 'flex-end' }}> {/* Changed to flex-end for single button */}
+                      {/* Preview button logic might need to be re-evaluated or simplified for this stage */}
+                      {/* {selectedFormat === 'pdf' && selectedStudents.length === 1 && (
                         <Button 
                           variant="outlined" 
                           startIcon={<VisibilityIcon />}
                           onClick={handlePreviewReport}
+                          sx={{ mr: 1 }} 
                         >
-                          Preview
+                          Preview Individual PDF
                         </Button>
-                      )}
+                      )} */}
                       
                       <Button 
                         variant="contained" 
                         startIcon={<DownloadIcon />}
                         onClick={handleGenerateReport}
                         disabled={selectedStudents.length === 0 || generatingReport}
-                        sx={{ ml: 'auto' }}
+                        // sx={{ ml: 'auto' }} // Removed as preview button is commented out
                       >
                         {generatingReport ? (
                           <>
