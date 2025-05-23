@@ -90,23 +90,32 @@ The dashboard provides a quick overview of:
 
 ### Report Generation
 
-#### Creating Individual Reports
-1. Navigate to "Reports" in the sidebar
-2. Select "Individual Student Report"
-3. Choose a student from the dropdown
-4. Select report parameters:
-   - Include charts (yes/no)
-   - Template style (classic, modern, minimal)
-5. Click "Generate Report" to create the PDF
-6. Use "Preview" to view before downloading
+The report generation interface allows faculty to create detailed academic reports for students in various formats.
 
-#### Creating Batch Reports
-1. Navigate to "Reports" in the sidebar
-2. Select "Batch Report"
-3. Select multiple students from the list
-4. Choose report format (PDF or Excel)
-5. Select additional parameters
-6. Click "Generate Report" to create and download
+1.  **Navigate to Reports:** Access the report generation section from the sidebar (usually labeled "Reports" or "Reporting").
+2.  **Select Students:** Choose one or more students for whom the report is to be generated. The system will provide a list of students assigned to you.
+3.  **Choose Report Category/Title:** Select the type or title of the report (e.g., "Individual Student Report," "Semester Performance Report").
+4.  **Select Report Format:**
+    *   **PDF:** For generating reports in PDF format.
+        *   **PDF Output Type (if multiple students selected):**
+            *   **Individual PDFs (ZIP):** Generates a separate PDF file for each selected student, bundled together in a single ZIP archive for download.
+            *   **Combined PDF:** Merges the reports of all selected students into a single PDF document.
+        *   **Template Style:** Choose a visual style for the PDF report (e.g., Classic, Modern, Minimal).
+        *   **Include Charts:** Option to include or exclude performance charts in the PDF.
+    *   **Excel:** For generating reports in Excel format (XLSX).
+        *   **Select Columns:** Choose the specific data columns to include in the Excel spreadsheet (e.g., Name, Registration Number, Branch, Overall CGPA, semester-wise SGPA, credits obtained, etc.).
+5.  **Generate Report:**
+    *   Click the "Generate Report" button.
+    *   The system will process the request, and a download will begin automatically. The filename will typically indicate the report name and date.
+    *   During generation, a loading indicator will be shown. Error messages will be displayed if any issues occur.
+
+**Key Student Data in Reports (PDF Example):**
+*   Student's personal details (Name, Registration No., Branch, etc.)
+*   Semester-wise tables showing subjects, grades, credits, and pass/fail status.
+*   Semester summaries (SGPA, credits).
+*   Overall CGPA.
+
+**Excel reports will contain the data fields explicitly selected by the faculty.**
 
 ### Counseling Notes
 
