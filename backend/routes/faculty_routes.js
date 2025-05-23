@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/token-auth');
 const pool = require('../config/database');
 
 // Apply authentication middleware to all faculty routes

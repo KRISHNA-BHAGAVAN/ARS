@@ -236,7 +236,7 @@ const LoginPage = () => {
           <motion.div variants={itemVariants}>
             <Box sx={{ mt: 3, textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">
-                © {new Date().getFullYear()} Ofen.in - All rights reserved.
+                © {new Date().getFullYear()} Ofzen.in - All rights reserved.
               </Typography>
             </Box>
           </motion.div>

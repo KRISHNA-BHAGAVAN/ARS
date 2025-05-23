@@ -1,6 +1,12 @@
 #!/bin/bash
 echo "Stopping Automated Reporting System..."
-# Ports to check
+
+# Stop Apache and MySQL
+echo "Stopping Apache and MySQL services..."
+sudo systemctl stop apache2
+sudo systemctl stop mysql
+
+# Ports to check (your app ports)
 PORTS=(5000 5173)
 
 for PORT in "${PORTS[@]}"; do
@@ -15,4 +21,4 @@ for PORT in "${PORTS[@]}"; do
   fi
 done
 
-echo "All servers stopped."
+echo "All services and project servers stopped."

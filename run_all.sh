@@ -1,6 +1,12 @@
 #!/bin/bash
 echo "Starting Automated Reporting System..."
 
+
+# Starting Apache and MySQL
+echo "Starting Apache and MySQL services..."
+sudo systemctl start apache2
+sudo systemctl start mysql
+
 # Start backend server
 echo "Starting backend server..."
 cd backend
