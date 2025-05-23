@@ -25,7 +25,10 @@ import {
   ListItemIcon,
   ListItemSecondaryAction,
   IconButton,
-  Chip
+  Chip,
+  RadioGroup, // Added for RadioGroup
+  Radio, // Added for Radio
+  FormLabel // Added for FormLabel
 } from '@mui/material';
 import { motion } from 'framer-motion';
 
@@ -38,6 +41,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import HistoryIcon from '@mui/icons-material/History';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit'; // Added EditIcon import
 
 import { api } from '../../services/api_enhanced'; // Assuming this is your facultyApi or similar
 import facultyApi from '../../services/faculty-api'; // Explicitly import facultyApi
@@ -86,10 +90,10 @@ const FacultyReports = () => {
       try {
         // In a real implementation, these would be actual API calls
         // For now, we'll use mock data
-        
+
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         // Mock students data
         const mockStudents = [
           { id: 1, name: 'Akella Venkata', regNo: '22A91A6101', branch: 'AIML', semester: 6 },
@@ -98,90 +102,90 @@ const FacultyReports = () => {
           { id: 4, name: 'Arugollu Lalu Prasad', regNo: '22A91A6104', branch: 'AIML', semester: 6 },
           { id: 5, name: 'Ayushi Singh', regNo: '22A91A6105', branch: 'AIML', semester: 6 },
         ];
-        
+
         // Mock recent reports
         const mockRecentReports = [
-          { 
-            id: 1, 
-            name: 'Semester Performance Report', 
-            type: 'PDF', 
-            students: ['Akella Venkata'], 
-            date: '2024-05-10', 
+          {
+            id: 1,
+            name: 'Semester Performance Report',
+            type: 'PDF',
+            students: ['Akella Venkata'],
+            date: '2024-05-10',
             size: '1.2 MB',
             path: '/reports/semester_performance_22A91A6101.pdf'
           },
-          { 
-            id: 2, 
-            name: 'Batch Analysis', 
-            type: 'Excel', 
-            students: ['Multiple Students'], 
-            date: '2024-05-08', 
+          {
+            id: 2,
+            name: 'Batch Analysis',
+            type: 'Excel',
+            students: ['Multiple Students'],
+            date: '2024-05-08',
             size: '3.5 MB',
             path: '/reports/batch_analysis_20240508.xlsx'
           },
-          { 
-            id: 3, 
-            name: 'Subject Analysis Report', 
-            type: 'PDF', 
-            students: ['Anusuri Bharathi'], 
-            date: '2024-05-05', 
+          {
+            id: 3,
+            name: 'Subject Analysis Report',
+            type: 'PDF',
+            students: ['Anusuri Bharathi'],
+            date: '2024-05-05',
             size: '0.9 MB',
             path: '/reports/subject_analysis_22A91A6102.pdf'
           },
-          { 
-            id: 4, 
-            name: 'Cumulative Performance', 
-            type: 'PDF', 
-            students: ['Ari Naresh'], 
-            date: '2024-05-03', 
+          {
+            id: 4,
+            name: 'Cumulative Performance',
+            type: 'PDF',
+            students: ['Ari Naresh'],
+            date: '2024-05-03',
             size: '1.1 MB',
             path: '/reports/cumulative_22A91A6103.pdf'
           },
-          { 
-            id: 5, 
-            name: 'Student Details Export', 
-            type: 'Excel', 
-            students: ['All Students'], 
-            date: '2024-05-01', 
+          {
+            id: 5,
+            name: 'Student Details Export',
+            type: 'Excel',
+            students: ['All Students'],
+            date: '2024-05-01',
             size: '4.2 MB',
             path: '/reports/student_details_20240501.xlsx'
           },
         ];
-        
+
         // Mock scheduled reports
         const mockScheduledReports = [
-          { 
-            id: 1, 
-            name: 'Weekly Performance Summary', 
-            schedule: 'Weekly (Monday)', 
-            type: 'PDF', 
+          {
+            id: 1,
+            name: 'Weekly Performance Summary',
+            schedule: 'Weekly (Monday)',
+            type: 'PDF',
             recipients: 'Faculty, HoD',
             next_run: '2024-05-15'
           },
-          { 
-            id: 2, 
-            name: 'Monthly Attendance Report', 
-            schedule: 'Monthly (1st)', 
-            type: 'Excel', 
+          {
+            id: 2,
+            name: 'Monthly Attendance Report',
+            schedule: 'Monthly (1st)',
+            type: 'Excel',
             recipients: 'Faculty',
             next_run: '2024-06-01'
           },
-          { 
-            id: 3, 
-            name: 'Semester End Report', 
-            schedule: 'Once (End of Semester)', 
-            type: 'PDF', 
+          {
+            id: 3,
+            name: 'Semester End Report',
+            schedule: 'Once (End of Semester)',
+            type: 'PDF',
             recipients: 'Faculty, HoD, Principal',
             next_run: '2024-06-30'
           },
         ];
-        
+
         setStudents(mockStudents);
         setRecentReports(mockRecentReports);
         setScheduledReports(mockScheduledReports);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setError("Failed to load data. Please try again later.");
+        setFetchError("Failed to load data. Please try again later."); // Using fetchError here
       } finally {
         setLoading(false);
       }
@@ -279,7 +283,7 @@ const FacultyReports = () => {
             filename = filenameMatch[1];
           }
         }
-        
+
         // Fallback extension if not in extracted filename
         if (selectedFormat === 'pdf' && !filename.endsWith('.pdf') && !filename.endsWith('.zip')) {
             filename += (pdfOptionType === 'individual' && selectedStudents.length > 1) ? '.zip' : '.pdf';
@@ -293,7 +297,7 @@ const FacultyReports = () => {
         link.click();
         link.remove();
         window.URL.revokeObjectURL(url);
-        
+
         // Optionally, show a success message
         // setSuccessAlert('Report generated and download started!'); // Requires state for success alert
       } else {
@@ -320,29 +324,19 @@ const FacultyReports = () => {
   const handlePreviewReport = () => {
     // Preview logic might need adjustment based on new options
     if (selectedFormat === 'pdf' && selectedStudents.length === 1) {
-      // const url = api.previewIndividualReport( // This api call is mock and might need update
-      //   selectedStudents[0], 
-      //   includeCharts, 
-      // );
+      // In a real implementation, this would involve an API call to get a temporary preview URL
+      // For now, we'll simulate an alert
       alert(`Simulating PDF preview for ${selectedStudents[0]}`);
-      // window.open(url, '_blank');
     }
   };
 
   const handleDeleteReport = (id) => {
-        templateStyle
-      
-      window.open(url, '_blank');
-    }
-  };
-
-  const handleDeleteReport = (id) => {
-    // In a real implementation, this would call the API
+    // In a real implementation, this would call the API to delete the report
     setRecentReports(prev => prev.filter(report => report.id !== id));
   };
 
   const handleDeleteScheduledReport = (id) => {
-    // In a real implementation, this would call the API
+    // In a real implementation, this would call the API to delete the scheduled report
     setScheduledReports(prev => prev.filter(report => report.id !== id));
   };
 
@@ -395,8 +389,8 @@ const FacultyReports = () => {
       </Box>
 
       <Paper sx={{ width: '100%', mb: 3 }}>
-        <Tabs 
-          value={tabValue} 
+        <Tabs
+          value={tabValue}
           onChange={handleTabChange}
           indicatorColor="primary"
           textColor="primary"
@@ -406,7 +400,7 @@ const FacultyReports = () => {
           <Tab label="Recent Reports" />
           <Tab label="Scheduled Reports" />
         </Tabs>
-        
+
         <Box sx={{ p: 3 }}>
           {/* Report Error Alert */}
           {reportError && (
@@ -425,9 +419,9 @@ const FacultyReports = () => {
                       <Typography variant="h6" gutterBottom>
                         Report Configuration
                       </Typography>
-                      
+
                       <Divider sx={{ mb: 3 }} />
-                      
+
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
                           <FormControl fullWidth margin="normal">
@@ -445,7 +439,7 @@ const FacultyReports = () => {
                             </Select>
                           </FormControl>
                         </Grid>
-                        
+
                         <Grid item xs={12}>
                           <FormControl fullWidth margin="normal">
                             <InputLabel>Report Format</InputLabel>
@@ -469,7 +463,7 @@ const FacultyReports = () => {
                             </Select>
                           </FormControl>
                         </Grid>
-                        
+
                         <Grid item xs={12}>
                           <FormControl fullWidth margin="normal">
                             <InputLabel>Select Students</InputLabel> {/* Assuming this exists and works */}
@@ -481,10 +475,10 @@ const FacultyReports = () => {
                               renderValue={(selected) => (
                                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                   {selected.map((value) => (
-                                    <Chip 
-                                      key={value} 
-                                      label={students.find(s => s.regNo === value)?.name || value} 
-                                      size="small" 
+                                    <Chip
+                                      key={value}
+                                      label={students.find(s => s.regNo === value)?.name || value}
+                                      size="small"
                                     />
                                   ))}
                                 </Box>
@@ -498,7 +492,7 @@ const FacultyReports = () => {
                             </Select>
                           </FormControl>
                         </Grid>
-                        
+
                         {/* PDF Options: Conditional Display */}
                         {selectedFormat === 'pdf' && (
                           <>
@@ -547,7 +541,7 @@ const FacultyReports = () => {
                             </Grid>
                           </>
                         )}
-                        
+
                         {/* Excel Column Selection: Conditional Display */}
                         {selectedFormat === 'excel' && (
                           <Grid item xs={12}>
@@ -581,20 +575,20 @@ const FacultyReports = () => {
                     </CardContent>
                   </Card>
                 </Grid>
-                
+
                 <Grid item xs={12} md={6}>
                   <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <CardContent sx={{ flexGrow: 1 }}>
                       <Typography variant="h6" gutterBottom>
                         Report Preview
                       </Typography>
-                      
+
                       <Divider sx={{ mb: 3 }} />
-                      
-                      <Box sx={{ 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        alignItems: 'center', 
+
+                      <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
                         justifyContent: 'center',
                         height: '300px',
                         backgroundColor: '#f5f5f5',
@@ -642,22 +636,22 @@ const FacultyReports = () => {
                         )}
                       </Box>
                     </CardContent>
-                    
+
                     <Box sx={{ p: 2, pt: 0, display: 'flex', justifyContent: 'flex-end' }}> {/* Changed to flex-end for single button */}
                       {/* Preview button logic might need to be re-evaluated or simplified for this stage */}
                       {/* {selectedFormat === 'pdf' && selectedStudents.length === 1 && (
-                        <Button 
-                          variant="outlined" 
+                        <Button
+                          variant="outlined"
                           startIcon={<VisibilityIcon />}
                           onClick={handlePreviewReport}
-                          sx={{ mr: 1 }} 
+                          sx={{ mr: 1 }}
                         >
                           Preview Individual PDF
                         </Button>
                       )} */}
-                      
-                      <Button 
-                        variant="contained" 
+
+                      <Button
+                        variant="contained"
                         startIcon={<DownloadIcon />}
                         onClick={handleGenerateReport}
                         disabled={selectedStudents.length === 0 || generatingReport}
@@ -678,7 +672,7 @@ const FacultyReports = () => {
               </Grid>
             </motion.div>
           )}
-          
+
           {/* Recent Reports Tab */}
           {tabValue === 1 && (
             <motion.div variants={itemVariants}>
@@ -690,7 +684,7 @@ const FacultyReports = () => {
                   Access and manage your recently generated reports
                 </Typography>
               </Box>
-              
+
               <List>
                 {recentReports.map((report) => (
                   <ListItem
@@ -732,14 +726,14 @@ const FacultyReports = () => {
                     </ListItemSecondaryAction>
                   </ListItem>
                 ))}
-                
+
                 {recentReports.length === 0 && (
                   <Alert severity="info">No recent reports found</Alert>
                 )}
               </List>
             </motion.div>
           )}
-          
+
           {/* Scheduled Reports Tab */}
           {tabValue === 2 && (
             <motion.div variants={itemVariants}>
@@ -752,9 +746,9 @@ const FacultyReports = () => {
                     Manage your scheduled report generation
                   </Typography>
                 </Box>
-                
-                <Button 
-                  variant="contained" 
+
+                <Button
+                  variant="contained"
                   startIcon={<AddIcon />}
                   sx={{
                     background: 'linear-gradient(45deg, #4568dc 30%, #b06ab3 90%)',
@@ -763,7 +757,7 @@ const FacultyReports = () => {
                   Schedule New Report
                 </Button>
               </Box>
-              
+
               <List>
                 {scheduledReports.map((report) => (
                   <ListItem
@@ -797,7 +791,7 @@ const FacultyReports = () => {
                     />
                     <ListItemSecondaryAction>
                       <IconButton edge="end" aria-label="edit" sx={{ mr: 1 }}>
-                        <EditIcon />
+                        <EditIcon /> {/* This icon was missing from the original imports */}
                       </IconButton>
                       <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteScheduledReport(report.id)}>
                         <DeleteIcon />
@@ -805,7 +799,7 @@ const FacultyReports = () => {
                     </ListItemSecondaryAction>
                   </ListItem>
                 ))}
-                
+
                 {scheduledReports.length === 0 && (
                   <Alert severity="info">No scheduled reports found</Alert>
                 )}
@@ -816,5 +810,6 @@ const FacultyReports = () => {
       </Paper>
     </motion.div>
   );
+};
 
 export default FacultyReports;
