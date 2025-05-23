@@ -331,7 +331,7 @@ const FacultyReports = () => {
 
   const handleDeleteReport = (id) => {
         templateStyle
-      );
+      
       window.open(url, '_blank');
     }
   };
@@ -816,6 +816,5 @@ const FacultyReports = () => {
       </Paper>
     </motion.div>
   );
-};
 
 export default FacultyReports;
