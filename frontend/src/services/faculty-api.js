@@ -174,7 +174,30 @@ export const facultyApi = {
       console.error('Error fetching recent reports:', error);
       throw error;
     }
-  }
+  },
+
+  generateFacultyReport: async (reportData) => {
+    try {
+      const response = await apiClient.post('/reports/generate', reportData, {
+        responseType: 'blob', // Important for handling file downloads
+      });
+      return response; // Return the full response object
+    } catch (error) {
+      console.error('Error generating faculty report:', error);
+      // Attempt to parse error response if it's a blob containing JSON
+      if (error.response && error.response.data instanceof Blob) {
+        const errorText = await error.response.data.text();
+        try {
+          const errorJson = JSON.parse(errorText);
+          throw { ...error, response: { ...error.response, data: errorJson } };
+        } catch (parseError) {
+          // If it's not JSON, throw the original error with text
+          throw { ...error, response: { ...error.response, data: { message: errorText } } };
+        }
+      }
+      throw error;
+    }
+  },
 };
 
 export default facultyApi;
